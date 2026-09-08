@@ -1,0 +1,26 @@
+@dc:title "Alan Cubesat Vocabulary"
+@dc:description "The Alan Cubesat ontologies."
+vocabulary <https://example.com/method/vocabulary#> as method {
+    extends <http://purl.org/dc/elements/1.1/> as dc
+    extends <http://www.w3.org/2001/XMLSchema#> as xsd
+
+    @dc:description "An example aspect — a reusable trait that concepts can share."
+    aspect Identified
+
+    @dc:description "The human-readable name of an Identified element."
+    scalar property name [
+        domain Identified
+        range xsd:string
+        functional
+    ]
+
+    @dc:description "An example concept — replace it with your own domain type."
+    concept Component < Identified
+
+    @dc:description "An example relation linking a Component to one it depends on."
+    relation dependsOn [
+        from Component
+        to Component
+        reverse dependedOnBy
+    ]
+}

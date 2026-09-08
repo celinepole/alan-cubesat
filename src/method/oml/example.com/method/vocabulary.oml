@@ -1,26 +1,197 @@
-@dc:title "Alan Cubesat Vocabulary"
-@dc:description "The Alan Cubesat ontologies."
-vocabulary <https://example.com/method/vocabulary#> as method {
+@dc:title "ALAN Mission Vocabulary"
+@dc:description "Vocabulary for the ALAN monitoring and assessment 3U CubeSat: structure, budgets, interfaces, requirements and verification. Scoped to analysis questions Q1, Q3 and Q4 of Project Deliverable 1. Q2 (sustainable imaging duty cycle) requires an analysis layer and is deferred."
+vocabulary <http://example.com/method/vocabulary#> as alan {
+
     extends <http://purl.org/dc/elements/1.1/> as dc
     extends <http://www.w3.org/2001/XMLSchema#> as xsd
 
-    @dc:description "An example aspect — a reusable trait that concepts can share."
-    aspect Identified
+    @dc:description "Anything in the model that can carry documentation."
+    aspect Element
 
-    @dc:description "The human-readable name of an Identified element."
-    scalar property name [
-        domain Identified
+    @dc:description "An element that can contain other elements."
+    aspect Container
+
+    @dc:description "An element that can be contained by a container."
+    aspect Contained
+
+
+        @dc:description "A physical or logical part of the CubeSat."
+    concept Component < Container, Contained, Element
+
+    @dc:description "A component at the level at which mass and power budgets are issued and owned. The answer to 'which subsystem is responsible for this overrun'."
+    concept Subsystem < Component
+
+    @dc:description "A component that groups other components. Its mass is a roll-up and is never asserted."
+    concept Assembly < Component
+
+    @dc:description "A leaf component. The only place mass and power draw are asserted."
+    concept Part < Component
+
+    @dc:description "A mass and power budget issued to a component, decomposed from a parent allocation."
+    concept Allocation < Element
+
+    @dc:description "A defined boundary of a component across which items flow. The entry point for interface change impact analysis."
+    concept Interface < Contained, Element
+
+    @dc:description "Something carried across an interface."
+    concept Item < Element
+
+    @dc:description "An item carrying payload or telemetry data."
+    concept DataFlow < Item
+
+    @dc:description "An item carrying electrical power."
+    concept PowerFlow < Item
+
+    @dc:description "A statement of a needed property or behaviour of the system."
+    concept Requirement < Element
+
+    @dc:description "A planned activity that establishes whether a requirement is met."
+    concept VerificationActivity < Element
+
+    @dc:description "An identifiable artifact produced by a verification activity."
+    concept Evidence < Element
+
+
+
+        @dc:description "The four standard verification methods."
+    scalar VerificationMethod [
+        oneOf "Test", "Analysis", "Inspection", "Demonstration"
+    ] = xsd:string
+
+    @dc:description "The state of a verification activity. A requirement whose only activity is Planned is still supported by assertion."
+    scalar VerificationStatus [
+        oneOf "Planned", "InProgress", "Passed", "Failed"
+    ] = xsd:string
+
+    @dc:description "The level in the requirement hierarchy at which a requirement sits."
+    scalar RequirementLevel [
+        oneOf "Mission", "System", "Subsystem"
+    ] = xsd:string
+
+
+
+        @dc:description "A textual description attached to any element."
+    scalar property ^description [
+        domain Element
         range xsd:string
+    ]
+
+    @dc:description "Asserted mass of a leaf part, in kilograms."
+    scalar property mass [
+        domain Part
+        range xsd:decimal
         functional
     ]
 
-    @dc:description "An example concept — replace it with your own domain type."
-    concept Component < Identified
+    @dc:description "Orbit-average power draw of a leaf part, in watts."
+    scalar property powerDraw [
+        domain Part
+        range xsd:decimal
+        functional
+    ]
 
-    @dc:description "An example relation linking a Component to one it depends on."
-    relation dependsOn [
+    @dc:description "Mass budgeted by an allocation, in kilograms."
+    scalar property allocatedMass [
+        domain Allocation
+        range xsd:decimal
+        functional
+    ]
+
+    @dc:description "Orbit-average power budgeted by an allocation, in watts."
+    scalar property allocatedPower [
+        domain Allocation
+        range xsd:decimal
+        functional
+    ]
+
+    @dc:description "The method by which a verification activity establishes compliance."
+    scalar property verificationMethod [
+        domain VerificationActivity
+        range VerificationMethod
+        functional
+    ]
+
+    @dc:description "The current state of a verification activity."
+    scalar property verificationStatus [
+        domain VerificationActivity
+        range VerificationStatus
+        functional
+    ]
+
+    @dc:description "The level at which a requirement sits in the hierarchy."
+    scalar property requirementLevel [
+        domain Requirement
+        range RequirementLevel
+        functional
+    ]
+
+
+
+        @dc:description "One element contains another. Recursive: walked upward to find the responsible subsystem, downward to roll up mass."
+    relation entity Contains [
+        from Container
+        to Contained
+        forward contains
+        reverse isContainedBy
+        inverse functional
+    ] < Element
+
+    @dc:description "A component owns an interface."
+    relation hasInterface [
         from Component
+        to Interface
+        reverse interfaceOf
+        inverse functional
+    ]
+
+    @dc:description "An interface carries an item. Answers which signals an interface change touches."
+    relation carries [
+        from Interface
+        to Item
+        reverse isCarriedBy
+    ]
+
+    @dc:description "An allocation is issued to exactly one component."
+    relation allocatedTo [
+        from Allocation
         to Component
-        reverse dependedOnBy
+        reverse hasAllocation
+        functional
+    ]
+
+    @dc:description "An allocation is carved out of a parent allocation. Recursive: budgets decompose down the containment tree."
+    relation derivesFrom [
+        from Allocation
+        to Allocation
+        reverse isDecomposedInto
+        functional
+    ]
+
+    @dc:description "A requirement refines a higher-level requirement. Recursive: mission to system to subsystem."
+    relation refines [
+        from Requirement
+        to Requirement
+        reverse isRefinedBy
+    ]
+
+    @dc:description "A requirement is verified by a planned activity. A requirement with none is supported only by assertion."
+    relation isVerifiedBy [
+        from Requirement
+        to VerificationActivity
+        reverse verifies
+    ]
+
+    @dc:description "A verification activity produces identifiable evidence."
+    relation produces [
+        from VerificationActivity
+        to Evidence
+        reverse isProducedBy
+    ]
+
+    @dc:description "A requirement constrains an interface. The entry point for interface change impact analysis."
+    relation constrains [
+        from Requirement
+        to Interface
+        reverse isConstrainedBy
     ]
 }

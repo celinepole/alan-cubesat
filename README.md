@@ -162,7 +162,7 @@ once. Where a second classification was wanted, it is an aspect.
 
 | | |
 |---|---|
-| Model version | commit `<insert full 40-character hash>` |
+| Model version | commit `<2d8cbad047d8301b24b07dd97455a498e317f8a1>` |
 | Reasoning scope | `http://example.com/project/bundle#` |
 | Reasoning assumptions | unique names assumption **on** (`oml reason`, the default) |
 

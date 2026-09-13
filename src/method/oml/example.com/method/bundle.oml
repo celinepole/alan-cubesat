@@ -1,0 +1,7 @@
+vocabulary bundle <http://example.com/method/bundle#> as alan-bundle {
+
+    // Closes the ALAN vocabulary. Adds disjointness axioms between sibling
+    // concepts and relation entities with no common subclass; aspects excluded.
+
+    includes <http://example.com/method/vocabulary#>
+}

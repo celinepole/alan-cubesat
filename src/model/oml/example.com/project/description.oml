@@ -1,5 +1,303 @@
-@dc:title "Alan Cubesat Description"
-@dc:description "The Alan Cubesat ontologies."
-description <https://example.com/project/description#> as myproject-desc {
-  uses <http://purl.org/dc/elements/1.1/> as dc
+@dc:title "ALAN CubeSat Description"
+@dc:description "Instances of the ALAN monitoring and assessment 3U CubeSat, derived from the TrueSightSAT mission design report (SnT, June 2025) and the SIE 458/558 SysML model."
+description <http://example.com/project/description#> as myproject-desc {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+
+    // ============================================================
+    // STRUCTURE
+    // ============================================================
+
+    @dc:description "3U CubeSat measuring artificial light at night over defined regions, in a 505 km sun-synchronous orbit."
+    @alan:sourceDocument "TrueSightSAT mission design report, SnT June 2025"
+    instance CubesatWhiteBox : alan:Assembly []
+
+    @dc:description "Dual-mode optical payload with onboard neuromorphic processing."
+    instance PayloadSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Integrated ADCS package with external sun sensors."
+    instance ADCSSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "VHF uplink for telecommand and X-band downlink for payload data."
+    instance CommunicationSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Solar generation, energy storage and power distribution."
+    instance PowerSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Electric field-emission propulsion for orbit maintenance and controlled deorbit."
+    instance PropulsionSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Primary structure and shear panels. Not yet decomposed."
+    @alan:reviewStatus "Known next increment"
+    instance StructuralSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    // ============================================================
+    // LEAF PARTS
+    // The only place mass and power draw are asserted.
+    // ============================================================
+
+    @dc:description "EAGLE daytime visible imager, Sony IMX264, 2448 x 2048."
+    instance DayCameraIMX264 : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+        alan:mass 0.020
+        alan:powerDraw 4.0
+    ]
+
+    @dc:description "OWL low-light SWIR imager, Sony IMX992, 400-1700 nm."
+    instance NightCameraIMX992 : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+        alan:mass 0.090
+        alan:powerDraw 4.0
+    ]
+
+    @dc:description "Intel Loihi 2 neuromorphic processor pair, one for redundancy."
+    instance AIChipLoihi2 : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+        alan:mass 0.002
+        alan:powerDraw 1.0
+    ]
+
+    @dc:description "AAC Clyde Space iADCS200 integrated package: reaction wheels, magnetorquers, ST200 star tracker, IMU, GPS."
+    instance ADCSPackIADCS200 : alan:Part [
+        alan:isDirectlyContainedBy ADCSSubsystem
+        alan:mass 0.525
+        alan:powerDraw 2.5
+    ]
+
+    @dc:description "Four NewSpace Systems NFSS-411 fine sun sensors."
+    instance SunSensorSet : alan:Part [
+        alan:isDirectlyContainedBy ADCSSubsystem
+        alan:mass 0.060
+        alan:powerDraw 0.2
+    ]
+
+    @dc:description "Endurosat CTJ30 panels across 3.5 faces. Generates rather than draws; generation is out of scope for this increment."
+    instance SolarPanels : alan:Part [
+        alan:isDirectlyContainedBy PowerSubsystem
+        alan:mass 0.470
+        alan:powerDraw 0.0
+    ]
+
+    @dc:description "DHV Technology MicroEPS power and battery module, 50 Wh."
+    instance BatteryEPS : alan:Part [
+        alan:isDirectlyContainedBy PowerSubsystem
+        alan:mass 0.290
+        alan:powerDraw 0.0
+    ]
+
+    @dc:description "ISISPACE VHF uplink / UHF downlink full duplex transceiver for TT&C."
+    instance VHFTransceiver : alan:Part [
+        alan:isDirectlyContainedBy CommunicationSubsystem
+        alan:mass 0.075
+        alan:powerDraw 8.0
+    ]
+
+    @dc:description "IQ Spacecom XLink-X software defined radio, up to 200 Mbps downlink."
+    instance XBandTransceiver : alan:Part [
+        alan:isDirectlyContainedBy CommunicationSubsystem
+        alan:mass 0.180
+        alan:powerDraw 1.81
+    ]
+
+    @dc:description "IQ Spacecom X-band quad patch antenna, 8000-8450 MHz."
+    instance XBandPatchAntenna : alan:Part [
+        alan:isDirectlyContainedBy CommunicationSubsystem
+        alan:mass 0.050
+        alan:powerDraw 0.0
+    ]
+
+    @dc:description "Two Morpheus Space MultiFEEP units, four gallium-fed thruster heads."
+    instance IonThrusterSystem : alan:Part [
+        alan:isDirectlyContainedBy PropulsionSubsystem
+        alan:mass 0.560
+        alan:powerDraw 0.4
+    ]
+
+    // ============================================================
+    // BUDGETS
+    // ============================================================
+
+    @dc:description "System dry mass and orbit-average power budget."
+    @alan:sourceDocument "TrueSightSAT sections 3.3 (4.0 kg dry mass) and 5.2 (18.44 W orbit-average generation)"
+    instance SystemAllocation : alan:Allocation [
+        alan:allocatedTo CubesatWhiteBox
+        alan:allocatedMass 4.0
+        alan:allocatedPower 18.44
+    ]
+
+    @dc:description "ADCS subsystem budget. Asserted part masses total 0.585 kg and exceed this figure; see README."
+    @alan:sourceDocument "TrueSightSAT Table 14, subsystem total row"
+    instance ADCSAllocation : alan:Allocation [
+        alan:allocatedTo ADCSSubsystem
+        alan:derivesFrom SystemAllocation
+        alan:allocatedMass 0.531
+        alan:allocatedPower 2.7
+    ]
+
+    // Fill the two figures below from TrueSightSAT Table 14,
+    // or delete this instance. Do not leave invented numbers in.
+    @dc:description "Payload share of the system budget."
+    @alan:sourceDocument "TrueSightSAT Table 14"
+    instance PayloadAllocation : alan:Allocation [
+        alan:allocatedTo PayloadSubsystem
+        alan:derivesFrom SystemAllocation
+        alan:allocatedMass 0.112
+        alan:allocatedPower 9.0
+    ]
+
+    // ============================================================
+    // ITEMS
+    // ============================================================
+
+    @dc:description "Compressed ALAN imagery, 33.3 GB per day after 10:1 onboard compression."
+    instance PayloadImageData : alan:DataFlow []
+
+    @dc:description "Regulated electrical power distributed from the EPS."
+    instance ElectricalPower : alan:PowerFlow []
+
+    // ============================================================
+    // INTERFACES
+    // ============================================================
+
+    @dc:description "Telemetry and payload data output to the ground segment."
+    instance TelemetryIF : alan:Interface [
+        alan:interfaceOf XBandTransceiver
+    ]
+
+    @dc:description "Regulated power bus from the EPS to all subsystems."
+    instance PowerDistributionIF : alan:Interface [
+        alan:interfaceOf BatteryEPS
+    ]
+
+    @dc:description "Payload imagery output from the neuromorphic processor."
+    instance PayloadDataOut : alan:Interface [
+        alan:interfaceOf AIChipLoihi2
+    ]
+
+    @dc:description "Regulated power input to the daytime imager."
+    instance DayCameraPowerIn : alan:Interface [
+        alan:interfaceOf DayCameraIMX264
+    ]
+
+    // ============================================================
+    // CONNECTIONS
+    // relation instance, not instance: Connection is a relation entity.
+    // ============================================================
+
+    relation instance Conn_EPS_to_DayCamera : alan:Connection [
+        from PowerDistributionIF
+        to   DayCameraPowerIn
+        alan:transfers ElectricalPower
+    ]
+
+    relation instance Conn_Payload_to_XBand : alan:Connection [
+        from PayloadDataOut
+        to   TelemetryIF
+        alan:transfers PayloadImageData
+    ]
+
+    // ============================================================
+    // OPERATIONS
+    // Fill the 0.0 figures from TrueSightSAT sections 5.2 and 6.
+    // Every dutyCycle must land in [0,1] or the Fraction facet
+    // makes the model inconsistent.
+    // ============================================================
+
+    @dc:description "Payload active, imaging a target region on the night side."
+    instance ImagingMode : alan:OperatingMode [
+        alan:dutyCycle 0.9375
+        alan:modePowerDraw 21.5
+        alan:modeDataRate 3.29
+        alan:exercises PayloadDataOut
+    ]
+
+    @dc:description "X-band downlink during a ground station pass."
+    instance DownlinkMode : alan:OperatingMode [
+        alan:dutyCycle 0.0625
+        alan:modePowerDraw 50.5
+        alan:modeDataRate 3.29
+        alan:exercises TelemetryIF
+    ]
+
+    @dc:description "Load-shed configuration. Payload off, TT&C beacon only. Exercises no interface, so it should NOT classify as OperationallyCoupledMode."
+    instance SafeMode : alan:OperatingMode [
+        alan:dutyCycle 0.0
+        alan:modePowerDraw 5.5
+        alan:modeDataRate 0.0
+    ]
+
+    @dc:description "Typical X-band pass at minimum usable elevation."
+    instance GroundPass : alan:ContactOpportunity [
+        alan:contactDuration 600.0
+        alan:downlinkRate 59.2
+    ]
+
+    // ============================================================
+    // REQUIREMENTS
+    // The normative text stays inside the brackets as statement,
+    // because a rule reads it. Commentary goes in the annotation.
+    // ============================================================
+
+    @dc:description "Top-level mission need."
+    instance MNS_1 : alan:Requirement [
+        alan:requirementId "MNS_1"
+        alan:statement "The system shall monitor and manage artificial light at night across metropolitan areas and near observatory zones so that nighttime lighting can support safe and sustainable use."
+        alan:requirementLevel "Mission"
+    ]
+
+    @dc:description "Derived from the 4.0 kg dry mass assumption in TrueSightSAT section 3.3."
+    instance SYS_MASS_01 : alan:Requirement [
+        alan:requirementId "SYS_MASS_01"
+        alan:statement "The system dry mass shall not exceed 4.0 kg."
+        alan:requirementLevel "System"
+        alan:refines MNS_1
+        alan:isVerifiedBy VA_MassProperties
+    ]
+
+    @dc:description "Deliberately carries no verification activity. This is the Q3 coverage gap; see README."
+    @alan:reviewStatus "Unverified - known gap"
+    instance SUB_ADCS_MASS_01 : alan:Requirement [
+        alan:requirementId "SUB_ADCS_MASS_01"
+        alan:statement "The ADCS subsystem mass shall not exceed 0.531 kg."
+        alan:requirementLevel "Subsystem"
+        alan:refines SYS_MASS_01
+    ]
+
+    @dc:description "Payload data capture and storage capacity."
+    instance OP_MIS_010 : alan:Requirement [
+        alan:requirementId "OP_MIS_010"
+        alan:statement "The payload shall be capable of capturing and storing at least 1 TB of image data per day."
+        alan:requirementLevel "System"
+        alan:refines MNS_1
+        alan:constrains TelemetryIF
+    ]
+
+    // ============================================================
+    // VERIFICATION
+    // ============================================================
+
+    @dc:description "Mass properties measurement of the integrated flight unit."
+    @alan:sourceDocument "GSFC-STD-7000 (GEVS)"
+    instance VA_MassProperties : alan:VerificationActivity [
+        alan:verificationMethod "Test"
+        alan:verificationStatus "Planned"
+        alan:produces EV_MassPropertiesReport
+    ]
+
+    @dc:description "Signed mass properties test report."
+    instance EV_MassPropertiesReport : alan:Evidence []
+
 }

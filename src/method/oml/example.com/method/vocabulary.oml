@@ -1,9 +1,29 @@
 @dc:title "ALAN Mission Vocabulary"
-@dc:description "Vocabulary for the ALAN monitoring and assessment 3U CubeSat: structure, budgets, interfaces, requirements and verification. Scoped to analysis questions Q1, Q3 and Q4 of Project Deliverable 1. Q2 (sustainable imaging duty cycle) requires an analysis layer and is deferred."
+@dc:description "Vocabulary for the ALAN monitoring and assessment 3U CubeSat: structure, budgets, interfaces, operations, requirements and verification. Scoped to analysis questions Q1 to Q4 of Project Deliverable 1."
 vocabulary <http://example.com/method/vocabulary#> as alan {
 
     extends <http://purl.org/dc/elements/1.1/> as dc
     extends <http://www.w3.org/2001/XMLSchema#> as xsd
+    extends <http://www.w3.org/2003/11/swrlb#> as swrlb
+
+    // ============================================================
+    // ANNOTATION PROPERTIES
+    // Metadata about the model, outside the logical semantics.
+    // Queryable, but never reasoned on and never a rule predicate.
+    // ============================================================
+
+    @dc:description "The document a requirement or component specification was drawn from."
+    annotation property sourceDocument
+
+    @dc:description "Review state of a model element. Metadata about the model, not a claim about the spacecraft."
+    annotation property reviewStatus
+
+    // ============================================================
+    // ASPECTS
+    // Cross-cutting traits that are meant to overlap. Excluded from
+    // vocabulary bundle closure, which is why a Component can be both
+    // a Container and a Contained without contradiction.
+    // ============================================================
 
     @dc:description "Anything in the model that can carry documentation."
     aspect Element
@@ -14,8 +34,19 @@ vocabulary <http://example.com/method/vocabulary#> as alan {
     @dc:description "An element that can be contained by a container."
     aspect Contained
 
+    @dc:description "A derived trait: asserted mass exceeds the allocation issued to this component. An aspect rather than a concept so that bundle closure does not make it disjoint from Part."
+    aspect ExceedsMassAllocation
 
-        @dc:description "A physical or logical part of the CubeSat."
+    @dc:description "A derived trait: this requirement uses non-normative wording. An aspect so that a requirement can be both non-normative and evidenced."
+    aspect NonNormativeRequirement
+
+    // ============================================================
+    // CONCEPTS
+    // Primary kinds. Siblings here are made disjoint by the
+    // vocabulary bundle, so nothing may be two of them at once.
+    // ============================================================
+
+    @dc:description "A physical or logical part of the CubeSat."
     concept Component < Container, Contained, Element
 
     @dc:description "A component at the level at which mass and power budgets are issued and owned. The answer to 'which subsystem is responsible for this overrun'."
@@ -28,12 +59,16 @@ vocabulary <http://example.com/method/vocabulary#> as alan {
     concept Part < Component
 
     @dc:description "A mass and power budget issued to a component, decomposed from a parent allocation."
-    concept Allocation < Element
+    concept Allocation < Element [
+        restricts allocatedTo to exactly 1 Component
+    ]
 
     @dc:description "A defined boundary of a component across which items flow. The entry point for interface change impact analysis."
-    concept Interface < Contained, Element
+    concept Interface < Contained, Element [
+        restricts interfaceOf to exactly 1 Component
+    ]
 
-    @dc:description "Something carried across an interface."
+    @dc:description "Something carried across a connection."
     concept Item < Element
 
     @dc:description "An item carrying payload or telemetry data."
@@ -41,6 +76,12 @@ vocabulary <http://example.com/method/vocabulary#> as alan {
 
     @dc:description "An item carrying electrical power."
     concept PowerFlow < Item
+
+    @dc:description "A configuration the spacecraft operates in for a fraction of an orbit, with a characteristic power draw and data generation rate."
+    concept OperatingMode < Element
+
+    @dc:description "A ground station pass during which data can be downlinked."
+    concept ContactOpportunity < Element
 
     @dc:description "A statement of a needed property or behaviour of the system."
     concept Requirement < Element
@@ -51,147 +92,383 @@ vocabulary <http://example.com/method/vocabulary#> as alan {
     @dc:description "An identifiable artifact produced by a verification activity."
     concept Evidence < Element
 
+    // ============================================================
+    // DEFINED CONCEPTS
+    // Necessary AND sufficient conditions, so the reasoner assigns
+    // membership from the facts. One per parent only: two defined
+    // children of the same concept would be made disjoint by closure.
+    // ============================================================
 
+    @dc:description "A verification activity that produces identifiable evidence. Computed from the produces relation, never asserted."
+    concept EvidencedActivity = VerificationActivity [
+        restricts some produces to Evidence
+    ]
 
-        @dc:description "The four standard verification methods."
+    @dc:description "A requirement backed by an activity that produces evidence. The positive half of the Q3 verification-coverage question; the negative half is a closed-world query, not an entailment."
+    concept EvidencedRequirement = Requirement [
+        restricts some isVerifiedBy to EvidencedActivity
+    ]
+
+    @dc:description "An interface that at least one requirement constrains. The entry point for Q4 interface change impact."
+    concept ConstrainedInterface = Interface [
+        restricts some isConstrainedBy to Requirement
+    ]
+
+    @dc:description "An operating mode that exercises a requirement-constrained interface, so changing that requirement has operational consequences."
+    concept OperationallyCoupledMode = OperatingMode [
+        restricts some exercises to ConstrainedInterface
+    ]
+
+    // ============================================================
+    // SCALARS
+    // ============================================================
+
+    @dc:description "The four standard verification methods."
     scalar VerificationMethod [
         oneOf "Test", "Analysis", "Inspection", "Demonstration"
-    ] = xsd:string
+    ]
 
-    @dc:description "The state of a verification activity. A requirement whose only activity is Planned is still supported by assertion."
+    @dc:description "The state of a verification activity."
     scalar VerificationStatus [
         oneOf "Planned", "InProgress", "Passed", "Failed"
-    ] = xsd:string
+    ]
 
     @dc:description "The level in the requirement hierarchy at which a requirement sits."
     scalar RequirementLevel [
         oneOf "Mission", "System", "Subsystem"
-    ] = xsd:string
+    ]
 
+    @dc:description "A fraction of an orbit, 0 to 1 inclusive. A value outside this range is a logical inconsistency, not a warning."
+    scalar Fraction = xsd:decimal [
+        minInclusive 0
+        maxInclusive 1
+    ]
 
+    @dc:description "A physical magnitude that cannot be negative."
+    scalar NonNegativeDecimal = xsd:decimal [
+        minInclusive 0
+    ]
 
-        @dc:description "A textual description attached to any element."
-    scalar property ^description [
-        domain Element
-        range xsd:string
+    @dc:description "Requirement identifier: one or more uppercase segments followed by a number, for example MNS_1 or SUB_ADCS_MASS_01."
+    scalar RequirementId = xsd:string [
+        pattern "[A-Z]+(_[A-Z]+)*_[0-9]{1,3}"
+    ]
+
+    // ============================================================
+    // SCALAR PROPERTIES
+    // ============================================================
+
+    @dc:description "The normative text of a requirement. Semantic rather than annotation, because a rule can read it and an annotation property cannot be a rule predicate."
+    scalar property statement [
+        domain Requirement
+        range   xsd:string
+        functional
+    ]
+
+    @dc:description "The identifier by which a requirement is known in the requirements document."
+    scalar property requirementId [
+        domain Requirement
+        range   RequirementId
+        functional
     ]
 
     @dc:description "Asserted mass of a leaf part, in kilograms."
     scalar property mass [
         domain Part
-        range xsd:decimal
+        range   NonNegativeDecimal
         functional
     ]
 
     @dc:description "Orbit-average power draw of a leaf part, in watts."
     scalar property powerDraw [
         domain Part
-        range xsd:decimal
+        range   NonNegativeDecimal
         functional
     ]
 
     @dc:description "Mass budgeted by an allocation, in kilograms."
     scalar property allocatedMass [
         domain Allocation
-        range xsd:decimal
+        range   NonNegativeDecimal
         functional
     ]
 
     @dc:description "Orbit-average power budgeted by an allocation, in watts."
     scalar property allocatedPower [
         domain Allocation
-        range xsd:decimal
+        range   NonNegativeDecimal
+        functional
+    ]
+
+    @dc:description "Fraction of an orbit spent in this mode."
+    scalar property dutyCycle [
+        domain OperatingMode
+        range   Fraction
+        functional
+    ]
+
+    @dc:description "Power drawn while in this mode, in watts."
+    scalar property modePowerDraw [
+        domain OperatingMode
+        range   NonNegativeDecimal
+        functional
+    ]
+
+    @dc:description "Data generated per second while in this mode, in megabits."
+    scalar property modeDataRate [
+        domain OperatingMode
+        range   NonNegativeDecimal
+        functional
+    ]
+
+    @dc:description "Usable duration of a ground station pass, in seconds."
+    scalar property contactDuration [
+        domain ContactOpportunity
+        range   NonNegativeDecimal
+        functional
+    ]
+
+    @dc:description "Achievable downlink rate during a pass, in megabits per second."
+    scalar property downlinkRate [
+        domain ContactOpportunity
+        range   NonNegativeDecimal
         functional
     ]
 
     @dc:description "The method by which a verification activity establishes compliance."
     scalar property verificationMethod [
         domain VerificationActivity
-        range VerificationMethod
+        range   VerificationMethod
         functional
     ]
 
     @dc:description "The current state of a verification activity."
     scalar property verificationStatus [
         domain VerificationActivity
-        range VerificationStatus
+        range   VerificationStatus
         functional
     ]
 
     @dc:description "The level at which a requirement sits in the hierarchy."
     scalar property requirementLevel [
         domain Requirement
-        range RequirementLevel
+        range   RequirementLevel
         functional
     ]
 
+    // ============================================================
+    // CONTAINMENT
+    // Split into a transitive superproperty and a simple direct
+    // sub-relation. OWL 2 DL forbids a transitive property from being
+    // functional, irreflexive or asymmetric, so those characteristics
+    // live on the direct relation only.
+    // ============================================================
 
+    @dc:description "Transitive containment. Derived by the reasoner from direct containment; never asserted."
+    relation isContainedBy [
+        from Contained
+        to   Container
+        reverse contains
+        transitive
+    ]
 
-        @dc:description "One element contains another. Recursive: walked upward to find the responsible subsystem, downward to roll up mass."
-    relation entity Contains [
-        from Container
-        to Contained
-        forward contains
-        reverse isContainedBy
-        inverse functional
-    ] < Element
+    @dc:description "Immediate containment. This is the relation asserted in the description."
+    relation isDirectlyContainedBy [
+        from Contained
+        to   Container
+        reverse directlyContains
+        functional
+        irreflexive
+        asymmetric
+    ] < isContainedBy
+
+    // ============================================================
+    // INTERFACES, CONNECTIONS AND FLOWS
+    // Connection is a relation entity so that a rule can bind the
+    // connection instance itself and ask what it transfers.
+    // ============================================================
 
     @dc:description "A component owns an interface."
     relation hasInterface [
         from Component
-        to Interface
+        to   Interface
         reverse interfaceOf
         inverse functional
     ]
 
-    @dc:description "An interface carries an item. Answers which signals an interface change touches."
-    relation carries [
+    @dc:description "Two interfaces are joined. Reified because what flows across a link is a fact about the link, not about either endpoint."
+    relation entity Connection [
         from Interface
-        to Item
-        reverse isCarriedBy
+        to   Interface
+        forward connectedTo
+        reverse isConnectedFrom
+    ] < Element
+
+    @dc:description "A connection carries an item. Answers which flows an interface change touches."
+    relation transfers [
+        from Connection
+        to   Item
+        reverse isTransferredBy
     ]
+
+    // ============================================================
+    // BUDGETS
+    // Same transitive-plus-direct split as containment.
+    // ============================================================
 
     @dc:description "An allocation is issued to exactly one component."
     relation allocatedTo [
         from Allocation
-        to Component
+        to   Component
         reverse hasAllocation
         functional
     ]
 
-    @dc:description "An allocation is carved out of a parent allocation. Recursive: budgets decompose down the containment tree."
-    relation derivesFrom [
+    @dc:description "Transitive budget lineage. Traces an allocation up to the system-level budget it was ultimately carved out of."
+    relation budgetDerivesFrom [
         from Allocation
-        to Allocation
-        reverse isDecomposedInto
-        functional
+        to   Allocation
+        reverse isBudgetSourceOf
+        transitive
     ]
 
-    @dc:description "A requirement refines a higher-level requirement. Recursive: mission to system to subsystem."
+    @dc:description "An allocation is carved out of exactly one parent allocation. This is the relation asserted in the description."
+    relation derivesFrom [
+        from Allocation
+        to   Allocation
+        reverse isDecomposedInto
+        functional
+        irreflexive
+        asymmetric
+    ] < budgetDerivesFrom
+
+    // ============================================================
+    // REQUIREMENTS AND VERIFICATION
+    // ============================================================
+
+    @dc:description "Transitive requirement traceability. Collapses a mission-system-subsystem chain into direct links for compliance reporting."
+    relation tracesTo [
+        from Requirement
+        to   Requirement
+        reverse isTracedFrom
+        transitive
+    ]
+
+    @dc:description "A requirement refines its immediate parent. This is the relation asserted in the description."
     relation refines [
         from Requirement
-        to Requirement
+        to   Requirement
         reverse isRefinedBy
-    ]
+        irreflexive
+        asymmetric
+    ] < tracesTo
 
     @dc:description "A requirement is verified by a planned activity. A requirement with none is supported only by assertion."
     relation isVerifiedBy [
         from Requirement
-        to VerificationActivity
+        to   VerificationActivity
         reverse verifies
     ]
 
     @dc:description "A verification activity produces identifiable evidence."
     relation produces [
         from VerificationActivity
-        to Evidence
+        to   Evidence
         reverse isProducedBy
     ]
 
     @dc:description "A requirement constrains an interface. The entry point for interface change impact analysis."
     relation constrains [
         from Requirement
-        to Interface
+        to   Interface
         reverse isConstrainedBy
+    ]
+
+    // ============================================================
+    // OPERATIONS
+    // ============================================================
+
+    @dc:description "A mode exercises an interface, so a change to that interface affects operations."
+    relation exercises [
+        from OperatingMode
+        to   Interface
+        reverse isExercisedBy
+    ]
+
+    // ============================================================
+    // DERIVED RELATIONS
+    // Populated by the rules below. Never asserted.
+    // ============================================================
+
+    @dc:description "One component depends on another for power. Derived by rule from reified connections."
+    relation dependsOnPower [
+        from Component
+        to   Component
+        reverse suppliesPowerTo
+    ]
+
+    @dc:description "A requirement is backed by this evidence. Derived across the verification chain."
+    relation hasEvidence [
+        from Requirement
+        to   Evidence
+        reverse evidenceFor
+    ]
+
+    @dc:description "Changing this requirement has consequences for this operating mode, because the requirement constrains an interface the mode exercises."
+    relation affectsMode [
+        from Requirement
+        to   OperatingMode
+        reverse isAffectedBy
+    ]
+
+    // ============================================================
+    // RULES
+    // ============================================================
+
+    @dc:description "If a connection between two interfaces transfers power, the component owning the target interface depends on the component owning the source interface."
+    rule PowerDependency [
+        Connection(i1,c,i2) &
+        interfaceOf(i1,src) &
+        interfaceOf(i2,tgt) &
+        transfers(c,f) &
+        PowerFlow(f)
+        -> dependsOnPower(tgt,src)
+    ]
+
+    @dc:description "Collapse the requirement-activity-evidence chain into a direct link for compliance reporting."
+    rule EvidenceTrace [
+        isVerifiedBy(r,v) &
+        produces(v,e)
+        -> hasEvidence(r,e)
+    ]
+
+    @dc:description "A requirement constraining an interface affects every mode that exercises it."
+    rule InterfaceOperationalImpact [
+        constrains(r,i) &
+        exercises(m,i)
+        -> affectsMode(r,m)
+    ]
+
+    // ------------------------------------------------------------
+    // The two rules below use SWRL builtins from the extended swrlb
+    // vocabulary. If oml lint rejects them, comment out both rules AND
+    // the swrlb extends line at the top of the file.
+    // ------------------------------------------------------------
+
+    @dc:description "Flag a component whose asserted mass exceeds its own allocation. Note: SWRL has no aggregation, so this compares single values and cannot sum a subsystem's parts."
+    rule MassOverAllocation [
+        mass(x,m) &
+        hasAllocation(x,a) &
+        allocatedMass(a,b) &
+        builtIn(swrlb:greaterThan,m,b)
+        -> ExceedsMassAllocation(x)
+    ]
+
+    @dc:description "Flag a requirement whose normative text uses 'should' rather than 'shall'. Only possible because statement is a semantic property; an annotation property cannot be a rule predicate."
+    rule NonNormativeWording [
+        Requirement(r) &
+        statement(r,s) &
+        builtIn(swrlb:matches, s, ".*should.*")
+        -> NonNormativeRequirement(r)
     ]
 }

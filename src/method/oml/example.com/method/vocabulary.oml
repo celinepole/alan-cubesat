@@ -83,8 +83,8 @@ vocabulary <http://example.com/method/vocabulary#> as alan {
     @dc:description "A ground station pass during which data can be downlinked."
     concept ContactOpportunity < Element
 
-    @dc:description "A statement of a needed property or behaviour of the system."
-    concept Requirement < Element
+    @dc:description "A statement of a needed property or behaviour of the system. Identity is established by requirementId."
+    concept Requirement < Element 
 
     @dc:description "A planned activity that establishes whether a requirement is met."
     concept VerificationActivity < Element
@@ -448,6 +448,7 @@ vocabulary <http://example.com/method/vocabulary#> as alan {
         exercises(m,i)
         -> affectsMode(r,m)
     ]
+
 
     // ------------------------------------------------------------
     // The two rules below use SWRL builtins from the extended swrlb

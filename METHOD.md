@@ -153,7 +153,7 @@ neither.
 | Violation | A fact that makes an analysis wrong | Mass asserted on a composite; a connection that carries nothing |
 | Warning | Work that has not happened yet | A part with no mass; a requirement with no activity |
 
-Five warnings stand open in the model today and every one of them is a real finding.
+Eight warnings stand open in the model today and every one of them is a real finding.
 They are not suppressed, because suppressing them would hide the answer to Q3. They are
 not errors, because training people to ignore a red count costs more than the count is
 worth.
@@ -178,6 +178,7 @@ with the reason each one cannot be a reasoner rule.
 | 10 | Both ends of a connection on one component | Connections | Expressible in SWRL, but the message is the point |
 | 11 | Duty cycles summing above one orbit | Operations | Aggregation; the `Fraction` facet only bounds each value |
 | 12 | Non-normative requirement wording | Requirements | Regex over a literal |
+| 12b | A requirement citing no source document | Requirements | Absence is unknown; added after the analysis layer diagnosed it |
 | 13 | Two requirements sharing an identifier | Requirements | An OML `key` would do it; the toolchain rejected the declaration |
 | 14 | A subsystem requirement with no parent | Requirements | Absence is unknown |
 | 15 | `Passed` with no evidence | Verification | Closed-world negation |
@@ -259,6 +260,10 @@ changing a parameter is a breaking change that has to be announced.
   `isq` and `si` vocabularies enter when the model does arithmetic that unit checking would
   protect.
 - **Stakeholders, use cases, scenarios.** No question asks anything about them yet.
+- **Whether the method is being followed.** This document prescribes; it does not measure.
+  The measuring half is [ANALYSIS.md](ANALYSIS.md) and the analysis pages it describes,
+  which run one absence query per pattern and report what the population actually looks
+  like.
 - **Whether a figure is right.** The method checks that a figure has a source, not that the
   source is correct. That judgment stays with the engineer, which is the point of the last
   line of Module 4: the goal is not to encode all judgment as rules, it is to stop

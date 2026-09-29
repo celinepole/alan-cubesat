@@ -40,6 +40,11 @@ together, and `bundle.oml` puts all eight into one reasoning scope.
 One page reads wider than it writes: the part-budget page reads the bundle, because a
 margin is a comparison between two files, and writes only to `structure/partbudgets.oml`.
 
+Above the authoring layer sits an analysis layer: a dashboard, a conformance and gap audit,
+and a scripted energy and data balance, all method-owned and invoked by thin project pages.
+Every question this model exists to answer now ends in an answer or a diagnosed gap, written
+up in [ANALYSIS.md](ANALYSIS.md).
+
 The method is no longer only a vocabulary. `src/method/md/` carries eight description
 patterns as SHACL shapes, each one wrapped in an editor and a compose template, with the
 rationale beside it. The project pages under `src/model/md/` are four lines each: they name
@@ -57,6 +62,11 @@ oml reason     # DL consistency, writes build/owl
 oml reason -e  # explain any inconsistency
 oml validate   # SHACL: the method's rules, closed-world
 ```
+
+`oml reason`, `oml validate` and the analysis pages ask three different questions and none
+replaces another. Reasoning asks what follows logically; validation asks whether an instance
+matches the shape the method expects; a query asks what the population looks like and where
+the holes between valid instances are.
 
 `oml reason` and `oml validate` ask different questions and neither replaces the other.
 Reasoning asks what follows logically and what contradicts; validation asks whether the

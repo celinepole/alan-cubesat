@@ -30,6 +30,12 @@ logical inconsistency. What it cannot do is notice that two requirements share o
 `key` declaration would, and the toolchain rejected it. So the duplicate check lives here
 as a SHACL rule, which is the honest place for it until the key works.
 
+**Provenance is required, and this rule arrived late.** The analysis layer noticed that three
+requirements cited no source, and the audit could only report it as a list because no rule
+asked for it. That was a pattern gap rather than a data gap: the method never required a
+requirement to name where it came from. The rule below closes it, and the three requirements
+that prompted it now carry a warning until someone records their source.
+
 **Levels and tracing.** Mission-level requirements stand alone. Everything below one must
 name the requirement it refines, or the trace from a subsystem constraint back to the
 mission need has a hole in it. Under the open world assumption the missing link is merely
@@ -123,6 +129,16 @@ alan:RequirementShape
             SELECT $this WHERE {
                 $this alan:statement ?s .
                 FILTER (!REGEX(STR(?s), "shall"))
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:severity sh:Warning ;
+        sh:message "This requirement cites no source document. Record where it came from - a requirement with no provenance is an opinion with an identifier." ;
+        sh:select """
+            PREFIX alan: <http://example.com/method/vocabulary#>
+            SELECT $this WHERE {
+                FILTER NOT EXISTS { $this alan:sourceDocument ?source }
             }
         """ ;
     ] ;

@@ -1,0 +1,124 @@
+@dc:title "ALAN Component Decomposition"
+@dc:description "Structure only: which components exist and what contains what. Mass and power figures live in structure/partbudgets; allocations live in structure/allocations. Owner: architect. Changes when the decomposition changes."
+description <http://example.com/project/structure/components#> as components {
+
+    uses <http://purl.org/dc/elements/1.1/> as dc
+    uses <http://example.com/method/vocabulary#> as alan
+
+    // ============================================================
+    // SYSTEM AND SUBSYSTEMS
+    // ============================================================
+
+    @dc:description "3U CubeSat measuring artificial light at night over defined regions, in a 505 km sun-synchronous orbit."
+    @alan:sourceDocument "TrueSightSAT mission design report, SnT June 2025"
+    instance CubesatWhiteBox : alan:Assembly []
+
+    @dc:description "Dual-mode optical payload with onboard neuromorphic processing."
+    instance PayloadSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Integrated ADCS package with external sun sensors."
+    instance ADCSSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "VHF uplink for telecommand and X-band downlink for payload data."
+    instance CommunicationSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Solar generation, energy storage and power distribution."
+    instance PowerSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Electric field-emission propulsion for orbit maintenance and controlled deorbit."
+    instance PropulsionSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    @dc:description "Primary structure and shear panels."
+    instance StructuralSubsystem : alan:Subsystem [
+        alan:isDirectlyContainedBy CubesatWhiteBox
+    ]
+
+    // ============================================================
+    // LEAF PARTS
+    // Structure only. The figures are asserted in partbudgets.oml.
+    // ============================================================
+
+    @dc:description "EAGLE daytime visible imager, Sony IMX264, 2448 x 2048."
+    instance DayCameraIMX264 : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+    ]
+
+    @dc:description "OWL low-light SWIR imager, Sony IMX992, 400-1700 nm."
+    instance NightCameraIMX992 : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+    ]
+
+    @dc:description "Intel Loihi 2 neuromorphic processor pair, one for redundancy."
+    instance AIChipLoihi2 : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+    ]
+
+    @dc:description "Named in the power budget but present in no mass table and in no block breakdown. Declared so that the gap is structural rather than a footnote."
+    @alan:reviewStatus "Unsourced - mass and power not carried. The 1.0 W 'AI Payload / OBC' line is currently charged to AIChipLoihi2; charging it here as well would double count."
+    instance OnboardComputer : alan:Part [
+        alan:isDirectlyContainedBy PayloadSubsystem
+    ]
+
+    @dc:description "AAC Clyde Space iADCS200 integrated package: reaction wheels, magnetorquers, ST200 star tracker, IMU, GPS."
+    instance ADCSPackIADCS200 : alan:Part [
+        alan:isDirectlyContainedBy ADCSSubsystem
+    ]
+
+    @dc:description "Four NewSpace Systems NFSS-411 fine sun sensors."
+    instance SunSensorSet : alan:Part [
+        alan:isDirectlyContainedBy ADCSSubsystem
+    ]
+
+    @dc:description "Endurosat CTJ30 panels across 3.5 faces. Generates rather than draws; generation is out of scope for this increment."
+    instance SolarPanels : alan:Part [
+        alan:isDirectlyContainedBy PowerSubsystem
+    ]
+
+    @dc:description "DHV Technology MicroEPS power and battery module, 50 Wh."
+    instance BatteryEPS : alan:Part [
+        alan:isDirectlyContainedBy PowerSubsystem
+    ]
+
+    @dc:description "ISISPACE VHF uplink / UHF downlink full duplex transceiver for TT&C."
+    instance VHFTransceiver : alan:Part [
+        alan:isDirectlyContainedBy CommunicationSubsystem
+    ]
+
+    @dc:description "IQ Spacecom XLink-X software defined radio, up to 200 Mbps downlink."
+    instance XBandTransceiver : alan:Part [
+        alan:isDirectlyContainedBy CommunicationSubsystem
+    ]
+
+    @dc:description "IQ Spacecom X-band quad patch antenna, 8000-8450 MHz."
+    instance XBandPatchAntenna : alan:Part [
+        alan:isDirectlyContainedBy CommunicationSubsystem
+    ]
+
+    @dc:description "Two Morpheus Space MultiFEEP units, four gallium-fed thruster heads."
+    instance IonThrusterSystem : alan:Part [
+        alan:isDirectlyContainedBy PropulsionSubsystem
+    ]
+
+    @dc:description "ISISPACE 3U primary structure: rails and end frames."
+    @alan:sourceDocument "SatCatalog, ISISPACE 3U structure (242.8 g primary)"
+    instance StructureFrame : alan:Part [
+        alan:isDirectlyContainedBy StructuralSubsystem
+    ]
+
+    @dc:description "Secondary structure: 1U shear and side panels. The SysML block breakdown carries eighteen of these; they are modelled here as one set because no figure is available per panel."
+    @alan:sourceDocument "SatCatalog, ISISPACE 3U structure (304.3 g primary plus secondary); SysML block 'Structural Subsystem' part pan : 1U Panels [18]"
+    instance PanelSet1U : alan:Part [
+        alan:isDirectlyContainedBy StructuralSubsystem
+    ]
+
+}

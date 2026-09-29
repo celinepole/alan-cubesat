@@ -1,0 +1,89 @@
+@dc:title "ALAN Part Mass and Power Figures"
+@dc:description "Asserted leaf figures only. Every entry is a ref instance: the component is defined in structure/components, and this file adds the numbers to it. Owner: mass and power engineer. Changes when an estimate matures, independently of the decomposition. The allocations this file is checked against are not imported here: the Part Budgets page reads the project bundle and writes to this description through the editor's target, so the budgets are in the reading scope without this file depending on them."
+description <http://example.com/project/structure/partbudgets#> as partbudgets {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+    extends <http://example.com/project/structure/components#> as components
+
+    // ---- Payload ----
+
+    ref instance components:DayCameraIMX264 [
+        alan:mass 0.020
+        alan:powerDraw 4.0
+    ]
+
+    ref instance components:NightCameraIMX992 [
+        alan:mass 0.090
+        alan:powerDraw 4.0
+    ]
+
+    ref instance components:AIChipLoihi2 [
+        alan:mass 0.002
+        alan:powerDraw 1.0
+    ]
+
+    // OnboardComputer is deliberately absent. It carries no sourced mass or
+    // power, and the part-budget page reports it as an incomplete entry.
+
+    // ---- ADCS ----
+
+    ref instance components:ADCSPackIADCS200 [
+        alan:mass 0.525
+        alan:powerDraw 2.5
+    ]
+
+    ref instance components:SunSensorSet [
+        alan:mass 0.060
+        alan:powerDraw 0.2
+    ]
+
+    // ---- Power ----
+
+    ref instance components:SolarPanels [
+        alan:mass 0.470
+        alan:powerDraw 0.0
+    ]
+
+    ref instance components:BatteryEPS [
+        alan:mass 0.290
+        alan:powerDraw 0.0
+    ]
+
+    // ---- Communications ----
+
+    ref instance components:VHFTransceiver [
+        alan:mass 0.075
+        alan:powerDraw 8.0
+    ]
+
+    ref instance components:XBandTransceiver [
+        alan:mass 0.180
+        alan:powerDraw 1.81
+    ]
+
+    ref instance components:XBandPatchAntenna [
+        alan:mass 0.050
+        alan:powerDraw 0.0
+    ]
+
+    // ---- Propulsion ----
+
+    ref instance components:IonThrusterSystem [
+        alan:mass 0.560
+        alan:powerDraw 0.4
+    ]
+
+    // ---- Structure ----
+
+    ref instance components:StructureFrame [
+        alan:mass 0.2428
+        alan:powerDraw 0.0
+    ]
+
+    ref instance components:PanelSet1U [
+        alan:mass 0.0615
+        alan:powerDraw 0.0
+    ]
+
+}

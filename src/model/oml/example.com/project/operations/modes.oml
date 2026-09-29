@@ -1,0 +1,38 @@
+@dc:title "ALAN Operating Modes and Contacts"
+@dc:description "Modes the spacecraft operates in, the interfaces they exercise, and the ground contacts available to them. Owner: operations engineer. These are the inputs to the Q2 energy and data balance."
+description <http://example.com/project/operations/modes#> as modes {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+    extends <http://example.com/project/interfaces/interfaces#> as interfaces
+
+    @dc:description "Payload active, imaging a target region on the night side."
+    instance ImagingMode : alan:OperatingMode [
+        alan:dutyCycle 0.9375
+        alan:modePowerDraw 21.5
+        alan:modeDataRate 3.29
+        alan:exercises interfaces:PayloadDataOut
+    ]
+
+    @dc:description "X-band downlink during a ground station pass."
+    instance DownlinkMode : alan:OperatingMode [
+        alan:dutyCycle 0.0625
+        alan:modePowerDraw 50.5
+        alan:modeDataRate 3.29
+        alan:exercises interfaces:TelemetryIF
+    ]
+
+    @dc:description "Load-shed configuration. Payload off, TT&C beacon only. Exercises no interface, so it should NOT classify as OperationallyCoupledMode."
+    instance SafeMode : alan:OperatingMode [
+        alan:dutyCycle 0.0
+        alan:modePowerDraw 5.5
+        alan:modeDataRate 0.0
+    ]
+
+    @dc:description "Typical X-band pass at minimum usable elevation."
+    instance GroundPass : alan:ContactOpportunity [
+        alan:contactDuration 600.0
+        alan:downlinkRate 59.2
+    ]
+
+}

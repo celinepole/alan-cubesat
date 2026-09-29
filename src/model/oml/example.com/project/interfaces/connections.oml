@@ -1,0 +1,66 @@
+@dc:title "ALAN Connections and Flows"
+@dc:description "Items and the connections that carry them. Separated from interfaces because a connection is a bilateral agreement: it changes when two owners agree a link, not when one owner declares a boundary. Owner: interface owners jointly."
+description <http://example.com/project/interfaces/connections#> as connections {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+    extends <http://example.com/project/interfaces/interfaces#> as interfaces
+
+    // ---- Items ----
+
+    @dc:description "Compressed ALAN imagery, 33.3 GB per day after 10:1 onboard compression."
+    instance PayloadImageData : alan:DataFlow []
+
+    @dc:description "Regulated electrical power distributed from the EPS."
+    instance ElectricalPower : alan:PowerFlow []
+
+    @dc:description "Telecommand traffic uplinked from the ground segment."
+    instance TelecommandData : alan:DataFlow []
+
+    // ---- Power distribution ----
+
+    relation instance Conn_EPS_to_DayCamera : alan:Connection [
+        from interfaces:PowerDistributionIF
+        to   interfaces:DayCameraPowerIn
+        alan:transfers ElectricalPower
+    ]
+
+    relation instance Conn_EPS_to_NightCamera : alan:Connection [
+        from interfaces:PowerDistributionIF
+        to   interfaces:NightCameraPowerIn
+        alan:transfers ElectricalPower
+    ]
+
+    relation instance Conn_EPS_to_AIChip : alan:Connection [
+        from interfaces:PowerDistributionIF
+        to   interfaces:AIChipPowerIn
+        alan:transfers ElectricalPower
+    ]
+
+    relation instance Conn_EPS_to_ADCS : alan:Connection [
+        from interfaces:PowerDistributionIF
+        to   interfaces:ADCSPowerIn
+        alan:transfers ElectricalPower
+    ]
+
+    relation instance Conn_EPS_to_Propulsion : alan:Connection [
+        from interfaces:PowerDistributionIF
+        to   interfaces:PropulsionPowerIn
+        alan:transfers ElectricalPower
+    ]
+
+    // ---- Data ----
+
+    relation instance Conn_Payload_to_XBand : alan:Connection [
+        from interfaces:PayloadDataOut
+        to   interfaces:TelemetryIF
+        alan:transfers PayloadImageData
+    ]
+
+    relation instance Conn_XBand_to_Antenna : alan:Connection [
+        from interfaces:TelemetryIF
+        to   interfaces:XBandRFOut
+        alan:transfers PayloadImageData
+    ]
+
+}

@@ -1,0 +1,59 @@
+@dc:title "ALAN Verification Coverage"
+@dc:description "Verification activities, the evidence they produce, and the link from each requirement to its activity. The isVerifiedBy links are ref instances onto requirements defined next door: planning a verification is the V&V engineer's act, not a change to the requirement text."
+description <http://example.com/project/requirements/verification#> as verification {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+    extends <http://example.com/project/requirements/requirements#> as requirements
+
+    // ---- Activities and evidence ----
+
+    @dc:description "Mass properties measurement of the integrated flight unit."
+    @alan:sourceDocument "GSFC-STD-7000 (GEVS)"
+    instance VA_MassProperties : alan:VerificationActivity [
+        alan:verificationMethod "Test"
+        alan:verificationStatus "Planned"
+        alan:produces EV_MassPropertiesReport
+    ]
+
+    @dc:description "Signed mass properties test report."
+    instance EV_MassPropertiesReport : alan:Evidence []
+
+    @dc:description "Orbit-average power balance computed from the part figures and the mode duty cycles, against the generation figure."
+    instance VA_PowerBudgetAnalysis : alan:VerificationActivity [
+        alan:verificationMethod "Analysis"
+        alan:verificationStatus "Planned"
+        alan:produces EV_PowerBudgetReport
+    ]
+
+    @dc:description "Power balance analysis report, including the eclipse case."
+    instance EV_PowerBudgetReport : alan:Evidence []
+
+    @dc:description "End-to-end downlink of one day's buffered data across a representative pass."
+    instance VA_DownlinkDemonstration : alan:VerificationActivity [
+        alan:verificationMethod "Demonstration"
+        alan:verificationStatus "Planned"
+        alan:produces EV_DownlinkLog
+    ]
+
+    @dc:description "Ground station log showing volume transferred within the pass window."
+    instance EV_DownlinkLog : alan:Evidence []
+
+    // ---- Coverage links ----
+
+    ref instance requirements:SYS_MASS_01 [
+        alan:isVerifiedBy VA_MassProperties
+    ]
+
+    ref instance requirements:SYS_PWR_01 [
+        alan:isVerifiedBy VA_PowerBudgetAnalysis
+    ]
+
+    ref instance requirements:SYS_DL_01 [
+        alan:isVerifiedBy VA_DownlinkDemonstration
+    ]
+
+    // SUB_ADCS_MASS_01, SUB_STR_MASS_01 and OP_MIS_010 carry no activity.
+    // That is the Q3 finding, and the verification page reports it.
+
+}

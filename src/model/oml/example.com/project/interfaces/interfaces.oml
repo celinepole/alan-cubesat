@@ -1,0 +1,59 @@
+@dc:title "ALAN Interfaces"
+@dc:description "Interfaces owned by components. Declared separately from the connections that join them, because an interface is owned by the component it belongs to and a connection is agreed between two owners. Owner: subsystem interface owner."
+description <http://example.com/project/interfaces/interfaces#> as interfaces {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+    extends <http://example.com/project/structure/components#> as components
+
+    @dc:description "Telemetry and payload data output to the ground segment."
+    instance TelemetryIF : alan:Interface [
+        alan:interfaceOf components:XBandTransceiver
+    ]
+
+    @dc:description "Regulated power bus from the EPS to all subsystems."
+    instance PowerDistributionIF : alan:Interface [
+        alan:interfaceOf components:BatteryEPS
+    ]
+
+    @dc:description "Payload imagery output from the neuromorphic processor."
+    instance PayloadDataOut : alan:Interface [
+        alan:interfaceOf components:AIChipLoihi2
+    ]
+
+    @dc:description "Regulated power input to the daytime imager."
+    instance DayCameraPowerIn : alan:Interface [
+        alan:interfaceOf components:DayCameraIMX264
+    ]
+
+    @dc:description "Regulated power input to the low-light imager."
+    instance NightCameraPowerIn : alan:Interface [
+        alan:interfaceOf components:NightCameraIMX992
+    ]
+
+    @dc:description "Regulated power input to the neuromorphic processor pair."
+    instance AIChipPowerIn : alan:Interface [
+        alan:interfaceOf components:AIChipLoihi2
+    ]
+
+    @dc:description "Regulated power input to the integrated ADCS package."
+    instance ADCSPowerIn : alan:Interface [
+        alan:interfaceOf components:ADCSPackIADCS200
+    ]
+
+    @dc:description "Regulated power input to the field-emission thruster units."
+    instance PropulsionPowerIn : alan:Interface [
+        alan:interfaceOf components:IonThrusterSystem
+    ]
+
+    @dc:description "Telecommand uplink input from the ground segment."
+    instance VHFCommandIn : alan:Interface [
+        alan:interfaceOf components:VHFTransceiver
+    ]
+
+    @dc:description "X-band radiated output from the quad patch antenna."
+    instance XBandRFOut : alan:Interface [
+        alan:interfaceOf components:XBandPatchAntenna
+    ]
+
+}

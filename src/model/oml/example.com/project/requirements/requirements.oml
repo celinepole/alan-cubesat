@@ -1,0 +1,73 @@
+@dc:title "ALAN Requirements"
+@dc:description "Requirement statements and their refinement chain. Carries no verification facts: an activity is planned by the V&V engineer and lives in requirements/verification. Owner: requirements engineer. Changes when a requirement is agreed."
+description <http://example.com/project/requirements/requirements#> as requirements {
+
+    uses    <http://purl.org/dc/elements/1.1/> as dc
+    uses    <http://example.com/method/vocabulary#> as alan
+    extends <http://example.com/project/interfaces/interfaces#> as interfaces
+
+    @dc:description "Top-level mission need."
+    instance MNS_1 : alan:Requirement [
+        alan:requirementId "MNS_1"
+        alan:statement "The system shall monitor and manage artificial light at night across metropolitan areas and near observatory zones so that nighttime lighting can support safe and sustainable use."
+        alan:requirementLevel "Mission"
+    ]
+
+    @dc:description "Derived from the 4.0 kg dry mass assumption in TrueSightSAT section 3.3."
+    @alan:sourceDocument "TrueSightSAT section 3.3"
+    instance SYS_MASS_01 : alan:Requirement [
+        alan:requirementId "SYS_MASS_01"
+        alan:statement "The system dry mass shall not exceed 4.0 kg."
+        alan:requirementLevel "System"
+        alan:refines MNS_1
+    ]
+
+    @dc:description "Derived from the orbit-average generation figure, which the current part budget already exceeds."
+    @alan:sourceDocument "TrueSightSAT section 5.2 (18.44 W orbit-average generation)"
+    instance SYS_PWR_01 : alan:Requirement [
+        alan:requirementId "SYS_PWR_01"
+        alan:statement "The system orbit-average power draw shall not exceed 18.44 W."
+        alan:requirementLevel "System"
+        alan:refines MNS_1
+    ]
+
+    @dc:description "Deliberately carries no verification activity. This is the Q3 coverage gap."
+    @alan:reviewStatus "Unverified - known gap"
+    instance SUB_ADCS_MASS_01 : alan:Requirement [
+        alan:requirementId "SUB_ADCS_MASS_01"
+        alan:statement "The ADCS subsystem mass shall not exceed 0.531 kg."
+        alan:requirementLevel "Subsystem"
+        alan:refines SYS_MASS_01
+    ]
+
+    @dc:description "Subsystem allocation for the structure, stated against the vendor figure for the 3U structure."
+    @alan:sourceDocument "SatCatalog, ISISPACE 3U structure (304.3 g primary plus secondary)"
+    @alan:reviewStatus "Unverified - no activity planned yet"
+    instance SUB_STR_MASS_01 : alan:Requirement [
+        alan:requirementId "SUB_STR_MASS_01"
+        alan:statement "The structural subsystem mass shall not exceed 0.3043 kg."
+        alan:requirementLevel "Subsystem"
+        alan:refines SYS_MASS_01
+    ]
+
+    @dc:description "Payload data capture and storage capacity."
+    @alan:reviewStatus "Unverified - known gap"
+    instance OP_MIS_010 : alan:Requirement [
+        alan:requirementId "OP_MIS_010"
+        alan:statement "The payload shall be capable of capturing and storing at least 1 TB of image data per day."
+        alan:requirementLevel "System"
+        alan:refines MNS_1
+        alan:constrains interfaces:TelemetryIF
+    ]
+
+    @dc:description "Ties the daily data volume to the contact time actually available, which is the Q2 question stated as a requirement."
+    @alan:sourceDocument "TrueSightSAT sections 4.1 and 5"
+    instance SYS_DL_01 : alan:Requirement [
+        alan:requirementId "SYS_DL_01"
+        alan:statement "The system shall downlink each day's compressed payload data within the ground station contact opportunities available that day."
+        alan:requirementLevel "System"
+        alan:refines MNS_1
+        alan:constrains interfaces:TelemetryIF
+    ]
+
+}

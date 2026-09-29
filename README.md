@@ -10,14 +10,41 @@ the scope statement in Project Deliverable 1.
 ## Repository layout
 
 ```
-src/method/oml/example.com/method/vocabulary.oml     the method: terms, restrictions, rules
-src/method/oml/example.com/method/bundle.oml         vocabulary bundle: closes the taxonomy
-src/model/oml/example.com/project/description.oml    the model: this system
-src/model/oml/example.com/project/bundle.oml         description bundle: the reasoning scope
+src/method/oml/example.com/method/vocabulary.oml   the method: terms, restrictions, rules
+src/method/oml/example.com/method/bundle.oml       vocabulary bundle: closes the taxonomy
+src/method/md/example.com/method/*.md              the method: patterns, editors, rules, guidance
+
+src/model/oml/example.com/project/
+    structure/components.oml                       the decomposition
+    structure/allocations.oml                      budgets issued, and their lineage
+    structure/partbudgets.oml                      asserted leaf mass and power
+    interfaces/interfaces.oml                      boundaries and their owners
+    interfaces/connections.oml                     items, and the links that carry them
+    operations/modes.oml                           modes, duty cycles, contacts
+    requirements/requirements.oml                  requirement text and refinement
+    requirements/verification.oml                  activities, evidence, coverage
+    bundle.oml                                     description bundle: the reasoning scope
+
+src/model/md/index.md                              the authoring pages, in method order
+src/model/md/ALAN CubeSat/*.md                     one thin page per pattern (8)
 ```
 
 The two bundles carry no terms of their own. They define what "the model" means for a
 given reasoning run — see *Reasoning scope and reproducibility* below.
+
+The descriptions are split by concern rather than by class, because a file boundary is an
+ownership boundary: the architect changes the decomposition, the mass engineer changes the
+figures, and neither should wait for the other. `ref instance` merges the facts back
+together, and `bundle.oml` puts all eight into one reasoning scope.
+
+One page reads wider than it writes: the part-budget page reads the bundle, because a
+margin is a comparison between two files, and writes only to `structure/partbudgets.oml`.
+
+The method is no longer only a vocabulary. `src/method/md/` carries eight description
+patterns as SHACL shapes, each one wrapped in an editor and a compose template, with the
+rationale beside it. The project pages under `src/model/md/` are four lines each: they name
+a description and compose a method template. What the method prescribes, and why each rule
+exists, is in [METHOD.md](METHOD.md).
 
 ## Building
 
@@ -28,7 +55,16 @@ root in VS Code and run from the integrated terminal:
 oml lint       # syntax and well-formedness
 oml reason     # DL consistency, writes build/owl
 oml reason -e  # explain any inconsistency
+oml validate   # SHACL: the method's rules, closed-world
 ```
+
+`oml reason` and `oml validate` ask different questions and neither replaces the other.
+Reasoning asks what follows logically and what contradicts; validation asks whether the
+data matches the shape the method expects. The mass overrun below is invisible to the
+first and reported by the second.
+
+To work in the model rather than on it, open `src/model/md/index.md` and start at the
+first page.
 
 Asserted facts land in `build/owl/example.com/project/description.ttl`; derived facts
 land alongside in `description__entailments.ttl`. The separation matters: everything in
@@ -215,6 +251,11 @@ vocabulary exists, the claim of coverage does not.
 The model was built from two sources that were each internally reviewed. Relating their
 shared quantities in one artifact surfaces conflicts that neither review caught.
 
+As of this increment these are no longer prose. `oml validate` reports the ADCS overrun as
+a violation on the part-budget page, and reports the unverified requirements, the
+unconnected interface and the part with no mass as warnings. The findings below are what
+the tool says, not what the author remembered to write down.
+
 ### Two allocation violations
 
 **ADCS mass.** `ADCSPackIADCS200` (0.525 kg) and `SunSensorSet` (0.060 kg) sum to
@@ -263,13 +304,16 @@ until a model artifact captures and relates the shared quantities.
 
 ## Known gaps in this increment
 
-**`StructuralSubsystem` is not decomposed.** The ISISPACE 3U structure is 0.304 kg
-(242.8 g primary, 304.3 g primary plus secondary), sourced and ready, but the subsystem
-has no parts in this increment.
+**`StructuralSubsystem` is decomposed, coarsely.** It now carries a frame (0.2428 kg) and
+one 1U panel set (0.0615 kg) against an allocation of 0.3043 kg. The SysML breakdown
+carries eighteen separate panels; one set is modelled because no per-panel figure exists.
+Splitting it later changes no rule.
 
-**Roughly 1.7 kg of the 4.0 kg dry mass assumption is unaccounted.** Eleven parts total
-2.322 kg. The remainder is structure, harness, thermal control, the missing OBC, and
-margin.
+**Roughly 1.37 kg of the 4.0 kg dry mass assumption is unaccounted.** Thirteen parts now
+total 2.6263 kg, the figure the part-budget page computes. The remainder is harness,
+thermal control, the OBC and margin. `OnboardComputer` is declared with no figures, so the
+validator reports it as an incomplete entry every run rather than leaving the gap to a
+footnote.
 
 **Two requirements are unverified by design.** `SUB_ADCS_MASS_01` and `OP_MIS_010` have
 no `isVerifiedBy`. Q3 asks which requirements are supported only by assertion; if every
@@ -277,10 +321,12 @@ requirement carried an activity, that query would return nothing and demonstrate
 Note also that `VA_MassProperties` sits at `"Planned"` — so even the verified requirement
 is not yet evidenced, which is the distinction `verificationStatus` exists to make.
 
-**Keys are not used.** `Requirement` has a `requirementId` with a pattern facet, but no
-`key` declaration. A key would make two requirements sharing an identifier an
-inconsistency under UNA rather than a silent duplicate. The declaration was written and
-rejected by the toolchain; it is a candidate for the next increment.
+**Keys are still not used.** `Requirement` has a `requirementId` with a pattern facet, but
+no `key` declaration; the declaration was written and rejected by the toolchain. A SHACL
+rule on the requirements page now catches two requirements sharing an identifier, which is
+the closed-world half of what a key would have given. The key remains a candidate for the
+next increment, because it would make the duplicate a logical inconsistency rather than a
+validation finding.
 
 **Term counts exceed the Deliverable 2 targets.** Deliverable 2 asked for 5–10 relations
 and 15–30 instances; this model has 17 and 39. Six relations exist only to satisfy the

@@ -1,8 +1,18 @@
 description bundle <http://example.com/project/bundle#> as alan-desc-bundle {
 
-    // Instance-level reasoning scope. The uses line brings in the vocabulary
-    // bundle, without which the world would not be fully closed.
+    // Instance-level reasoning and analysis scope. Descriptions are split by
+    // concern for authoring; this bundle puts them back together for machines.
+    // The uses line brings in the vocabulary bundle, without which the world
+    // would not be fully closed.
 
     uses     <http://example.com/method/bundle#>
-    includes <http://example.com/project/description#>
+
+    includes <http://example.com/project/structure/components#>
+    includes <http://example.com/project/structure/allocations#>
+    includes <http://example.com/project/structure/partbudgets#>
+    includes <http://example.com/project/interfaces/interfaces#>
+    includes <http://example.com/project/interfaces/connections#>
+    includes <http://example.com/project/operations/modes#>
+    includes <http://example.com/project/requirements/requirements#>
+    includes <http://example.com/project/requirements/verification#>
 }

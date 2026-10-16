@@ -4,10 +4,20 @@ oml-code:
 
 # project npm settings
 project:
-  name: "@oml/alan-cubesat"
+  name: "@celinepole/alan-method"
   version: 0.1.0
-  title: Alan Cubesat
-  description: The Alan Cubesat ontologies.
+  title: ALAN Method
+  description: The ALAN CubeSat modeling method (vocabulary, editor templates, RVM generator).
+
+# packing settings
+pack:
+  - include: [src/method]
+
+defaults:
+   export: -o build/owl
+   reason: -o build/owl -t
+   render: -m src/model/md -b build/web -c src/model/oml/example.com/project/bundle.oml
+   pack: -o build/dist
 
 # source folders
 sources:

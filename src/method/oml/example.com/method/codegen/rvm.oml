@@ -1,0 +1,86 @@
+description <http://example.com/method/codegen/rvm#> as rvm {
+
+    uses <http://opencaesar.io/codegen#> as codegen
+
+    instance RvmSpec : codegen:Spec [
+        codegen:construct """
+            PREFIX codegen: <http://opencaesar.io/codegen#>
+            PREFIX alan:    <http://example.com/method/vocabulary#>
+            PREFIX rvm:     <http://example.com/method/codegen/rvm#>
+
+            CONSTRUCT {
+                ?file a codegen:File ;
+                    codegen:path "${path}/VerificationMatrix.md" ;
+                    codegen:template rvm:RvmTemplate ;
+                    codegen:root ?matrix .
+
+                ?matrix rvm:requirement ?req .
+
+                ?req rvm:id ?id ;
+                    rvm:level ?level ;
+                    rvm:statement ?statement ;
+                    rvm:parent ?parentId ;
+                    rvm:activity ?act .
+
+                ?act rvm:name ?actName ;
+                    rvm:method ?method ;
+                    rvm:status ?status ;
+                    rvm:evidence ?evName .
+            }
+            WHERE {
+                BIND(IRI("urn:file:rvm") AS ?file)
+                BIND(IRI("urn:rvm:matrix") AS ?matrix)
+
+                ?req a alan:Requirement ;
+                     alan:requirementId ?id .
+                OPTIONAL { ?req alan:requirementLevel ?level }
+                OPTIONAL { ?req alan:statement ?statement }
+                OPTIONAL { ?req alan:refines ?parent . ?parent alan:requirementId ?parentId }
+                OPTIONAL {
+                    ?req alan:isVerifiedBy ?act .
+                    BIND(REPLACE(STR(?act), "^.*[/#]", "") AS ?actName)
+                    OPTIONAL { ?act alan:verificationMethod ?method }
+                    OPTIONAL { ?act alan:verificationStatus ?status }
+                    OPTIONAL {
+                        ?act alan:produces ?ev .
+                        BIND(REPLACE(STR(?ev), "^.*[/#]", "") AS ?evName)
+                    }
+                }
+            }
+        """
+        codegen:parameter "path"
+    ]
+
+    instance RvmTemplate : codegen:Template [
+        codegen:body """
+            {%- set matrix = object(file, "codegen:root") -%}
+            {%- set reqs = objects(matrix, "rvm:requirement") -%}
+            # Requirements Verification Matrix
+
+            Requirements in scope: {{ reqs.length }}
+
+            | Requirement | Level | Refines | Statement | Verification activity | Method | Status | Evidence |
+            | --- | --- | --- | --- | --- | --- | --- | --- |
+            {%- for r in reqs %}
+            {%- set acts = objects(r, "rvm:activity") %}
+            {%- set isMission = (object(r, "rvm:level") | string) == "Mission" %}
+            {%- if acts.length == 0 %}
+            | {{ object(r, "rvm:id") }} | {{ object(r, "rvm:level") or "-" }} | {{ object(r, "rvm:parent") or "-" }} | {{ object(r, "rvm:statement") or "-" }} | {{ "n/a (mission need)" if isMission else "**NOT VERIFIED**" }} | - | - | - |
+            {%- else %}
+            {%- for a in acts %}
+            | {{ object(r, "rvm:id") }} | {{ object(r, "rvm:level") or "-" }} | {{ object(r, "rvm:parent") or "-" }} | {{ object(r, "rvm:statement") or "-" }} | {{ object(a, "rvm:name") }} | {{ object(a, "rvm:method") or "-" }} | {{ object(a, "rvm:status") or "-" }} | {{ objects(a, "rvm:evidence") | join(", ") or "none" }} |
+            {%- endfor %}
+            {%- endif %}
+            {%- endfor %}
+
+            ## Coverage gaps
+
+            Non-mission requirements with no planned verification activity:
+            {% for r in reqs %}
+            {%- if objects(r, "rvm:activity").length == 0 and (object(r, "rvm:level") | string) != "Mission" %}
+            - {{ object(r, "rvm:id") }}: {{ object(r, "rvm:statement") }}
+            {%- endif %}
+            {%- endfor %}
+        """
+    ]
+}

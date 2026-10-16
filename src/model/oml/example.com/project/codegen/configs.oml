@@ -1,0 +1,11 @@
+description <http://example.com/project/codegen/configs#> as configs {
+
+    uses <http://opencaesar.io/codegen#> as codegen
+    extends <http://example.com/method/codegen/rvm#> as rvm
+
+    instance alanRvm : codegen:Config [
+        codegen:spec rvm:RvmSpec
+        codegen:context "http://example.com/project/bundle"
+        codegen:binding [codegen:key "path" codegen:value "build/docs"]
+    ]
+}

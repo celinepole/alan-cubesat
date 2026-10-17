@@ -14,12 +14,12 @@ description <http://example.com/project/structure/allocations#> as allocations {
         alan:allocatedPower 18.44
     ]
 
-    @dc:description "ADCS subsystem budget. The asserted part masses total 0.585 kg and exceed this figure; the overrun is reported by the part-budget page, not hidden in a README."
+    @dc:description "ADCS subsystem budget, re-apportioned for release 1.0.0 to the sum of its Table 14 line items (0.525 + 0.060 kg). The original 0.531 kg total row was 54 g short; the difference is drawn from system margin."
     @alan:sourceDocument "TrueSightSAT Table 14, subsystem total row"
     instance ADCSAllocation : alan:Allocation [
         alan:allocatedTo components:ADCSSubsystem
         alan:derivesFrom SystemAllocation
-        alan:allocatedMass 0.531
+        alan:allocatedMass 0.585
         alan:allocatedPower 2.7
     ]
 

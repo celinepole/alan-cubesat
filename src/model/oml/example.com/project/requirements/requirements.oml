@@ -35,7 +35,7 @@ description <http://example.com/project/requirements/requirements#> as requireme
     @alan:reviewStatus "Unverified - known gap"
     instance SUB_ADCS_MASS_01 : alan:Requirement [
         alan:requirementId "SUB_ADCS_MASS_01"
-        alan:statement "The ADCS subsystem mass shall not exceed 0.531 kg."
+        alan:statement "The ADCS subsystem mass shall not exceed 0.585 kg."
         alan:requirementLevel "Subsystem"
         alan:refines SYS_MASS_01
     ]

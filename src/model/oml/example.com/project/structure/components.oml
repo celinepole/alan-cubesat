@@ -50,7 +50,7 @@ description <http://example.com/project/structure/components#> as components {
 
     @dc:description "EAGLE daytime visible imager, Sony IMX264, 2448 x 2048."
     instance DayCameraIMX264 : alan:Part [
-        alan:isDirectlyContainedBy PayloadSubsystemX
+        alan:isDirectlyContainedBy PayloadSubsystem
     ]
 
     @dc:description "OWL low-light SWIR imager, Sony IMX992, 400-1700 nm."

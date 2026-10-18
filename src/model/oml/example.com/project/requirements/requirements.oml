@@ -17,7 +17,7 @@ description <http://example.com/project/requirements/requirements#> as requireme
     @alan:sourceDocument "TrueSightSAT section 3.3"
     instance SYS_MASS_01 : alan:Requirement [
         alan:requirementId "SYS_MASS_01"
-        alan:statement "The system dry mass shall not exceed 4.0 kg."
+        
         alan:requirementLevel "System"
         alan:refines MNS_1
     ]

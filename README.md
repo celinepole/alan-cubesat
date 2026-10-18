@@ -1,5 +1,8 @@
 # ALAN Monitoring and Assessment System
 
+[![Release](https://img.shields.io/github/v/release/celinepole/alan-cubesat)](https://github.com/celinepole/alan-cubesat/releases/latest)
+[![Live Site](https://img.shields.io/badge/Live-Site-brightgreen)](https://celinepole.github.io/alan-cubesat/)
+
 An OML model of a 3U CubeSat mission that measures artificial light at night (ALAN)
 over defined regions and delivers radiance assessments to municipalities,
 observatories, astronomers and researchers.

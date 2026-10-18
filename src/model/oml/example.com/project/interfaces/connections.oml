@@ -9,7 +9,7 @@ description <http://example.com/project/interfaces/connections#> as connections 
     // ---- Items ----
 
     @dc:description "Compressed ALAN imagery, 33.3 GB per day after 10:1 onboard compression."
-    instance PayloadImageData : alan:DataFlow, alan:PowerFlow []
+    instance PayloadImageData : alan:DataFlow []
 
     @dc:description "Regulated electrical power distributed from the EPS."
     instance ElectricalPower : alan:PowerFlow []

@@ -5,7 +5,7 @@ oml-code:
 # project npm settings
 project:
   name: "@celinepole/alan-method"
-  version: 0.1.0
+  version: 1.0.0
   title: ALAN Method
   description: The ALAN CubeSat modeling method (vocabulary, editor templates, RVM generator).
 
